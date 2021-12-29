@@ -78,4 +78,4 @@ export const MOBILE_WIDTH = 960;
 export const CrustWalletDownUrl = 'https://chrome.google.com/webstore/detail/crust-wallet/jccapkebeeiajkkdemacblkjhhhboiek'
 
 // beta prod
-export const ShareEarnENV = 'beta'
+export const ShareEarnENV = process.env.SHARE_AND_EARN_ENV || 'undefined'
