@@ -9,6 +9,8 @@ import 'semantic-ui-css/semantic.min.css';
 import '../styles/global.css';
 
 
+require('dotenv').config();
+
 export default function App({ Component, ...props }: AppProps) {
   const r = useRouter()
   if (r.pathname.startsWith('/docs')) {

@@ -14,6 +14,12 @@ jobs:
       - name: Run install
         run: yarn install
 
+      - name: Setup env
+        run: |
+          touch .env
+          echo 'API_ENDPOINT=https://files-api.decoo.io' >> .env
+          echo 'SHARE_AND_EARN_ENV=beta' >> .env    
+          
       - name: Build
         run: yarn export
 

@@ -23,6 +23,12 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Setup env
+        run: |
+          touch .env
+          echo 'API_ENDPOINT=https://api.crustfiles.io' >> .env
+          echo 'SHARE_AND_EARN_ENV=prod' >> .env    
+
       - name: Build bundle
         run: yarn export
 
