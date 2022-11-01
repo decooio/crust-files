@@ -47,9 +47,11 @@ function getWalletIcon(user: WrapLoginUser): string {
     case "flow":
       return '/images/wallet_flow.png';
     case "aptos-martian":
-      return '/images/aptos.svg';
+      return '/images/martian.png';
     case "aptos-petra":
       return '/images/aptos.svg';
+    case "web3auth":
+      return user.profileImage;
     case "wallet-connect": {
       const icons = _.get(user.walletConnect.connect, 'peerMeta.icons')
       if (_.size(icons)) {
