@@ -16,10 +16,12 @@ import { BaseWallet } from "../lib/types";
 import { openDocs } from "../lib/utils";
 import { nearConfig } from "../lib/wallet/config";
 import { getPerfix, lastUser, LoginUser, useContextWrapLoginUser } from "../lib/wallet/hooks";
+import { useWeb3Auth } from "../lib/web3auth/web3auth";
+
 interface ItemWallet {
   name: string,
   image: string,
-  group: 'Crust' | 'Polkadot' | 'MetaMask' | 'Web 3' | 'WalletConnect'
+  group: 'Crust' | 'Polkadot' | 'MetaMask' | 'Web 3' | 'WalletConnect' | 'Web3Auth'
 }
 
 declare global {
@@ -39,6 +41,7 @@ const IMGS = {
   'MetaMask': '/images/group_wallet_metamask.png',
   'Web 3': '/images/group_wallet_other.png',
   'WalletConnect': '/images/group_wallet_connect.png',
+  'Web3Auth': '/images/web3auth.png'
 }
 
 interface WalletGroup {
@@ -80,12 +83,14 @@ function Home({ className }: { className?: string }) {
     }
   }
 
+  const { login, web3Auth } = useWeb3Auth();
 
   const loginedSign = (u: LoginUser, wallet: BaseWallet) => {
     // const prefix = getPerfix(user);
-    const msg = u.wallet === 'near' || u.wallet === 'aptos-martian' || u.wallet == 'aptos-petra' ? u.pubKey || '' : u.account;
+    const msg = u.wallet === 'near' || u.wallet === 'aptos-martian' || u.wallet == 'aptos-petra' || u.wallet === 'web3auth' ? u.pubKey || '' : u.account;
     const prefix = getPerfix(u);
     wallet.sign(msg, u.account).then(signature => {
+      console.log('Login signature:::', signature)
       if (signature.length) {
         const perSignData = user.wallet === 'elrond' ? signature : `${prefix}-${msg}:${signature}`;
         const base64Signature = window.btoa(perSignData);
@@ -425,6 +430,22 @@ function Home({ className }: { className?: string }) {
     })
   }, [user])
 
+  const _onClickWeb3Auth = useCallback(async () => {
+    if (web3Auth) {
+      const provider = await login();
+      user.web3AuthWallet.provider = provider;
+      const accounts = await provider.getAccounts()
+      const userInfo = await web3Auth.getUserInfo()
+      console.log('userInfo::', userInfo)
+      setLogined({
+        account: userInfo.name,
+        wallet: 'web3auth',
+        pubKey: accounts?.[0],
+        profileImage: userInfo.profileImage
+      }, user.web3AuthWallet)
+    }
+  }, [user])
+
   const wallets = useMemo<Wallet[]>(() => {
     return [
       {
@@ -503,7 +524,7 @@ function Home({ className }: { className?: string }) {
       {
         group: 'Web 3',
         name: 'Aptos Martian',
-        image: '/images/aptos.svg',
+        image: '/images/martian.png',
         onClick: _onClickAptosMartian,
       },
       {
@@ -535,9 +556,15 @@ function Home({ className }: { className?: string }) {
         name: 'WalletConnect',
         image: '/images/wallet_connect.png',
         onClick: _onClickWalletConnect,
+      },
+      {
+        group: 'Web3Auth',
+        name: 'Web3Auth',
+        image: '/images/web3auth.png',
+        onClick: _onClickWeb3Auth,
       }
     ]
-  }, [_onClickCrust, _onClickCrustDown, _onClickCrustGetCru, _onClickPolkadotJs, _onClickMetamask, _onClickNear, _onClickFlow, _onClickSolana, _onClickElrond, _onClickWalletConnect, _onClickAptosMartian, _onClickAptosPetra])
+  }, [_onClickCrust, _onClickCrustDown, _onClickCrustGetCru, _onClickPolkadotJs, _onClickMetamask, _onClickNear, _onClickFlow, _onClickSolana, _onClickElrond, _onClickWalletConnect, _onClickAptosMartian, _onClickAptosPetra, _onClickWeb3Auth])
 
   const groupWallets = useMemo<WalletGroup[]>(() => {
     const groupObj = _.groupBy(wallets, 'group')
@@ -558,7 +585,7 @@ function Home({ className }: { className?: string }) {
   }, [wallets])
 
   const [hoverWalletGroup, setHoverWalletGroup] = useState<WalletGroup | null>(null)
-  const { data } = useParallax(100, 5)
+  const { data } = useParallax(100, 6)
 
   return (
 
@@ -645,7 +672,7 @@ export default React.memo(styled(Home)`
       z-index: 0;
     }
     .panel {
-      z-index: 1;
+      // z-index: 1;
       display: flex;
       width: 100%;
       height: 100%;
@@ -803,7 +830,7 @@ export default React.memo(styled(Home)`
         z-index: 2;
       }
       .wallet_items_web3 {
-        top: -6rem;
+        top: -20rem;
       }
       .wallet_items_metamask{
         top: -6rem;
